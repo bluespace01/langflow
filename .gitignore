@@ -277,3 +277,6 @@ src/frontend/temp
 
 .dspy_cache/
 *.db
+
+docker_example/langflow-data
+docker_example/langflow-postgres

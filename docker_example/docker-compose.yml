@@ -1,17 +1,19 @@
 services:
   langflow:
-    image: langflowai/langflow:latest # or another version tag on https://hub.docker.com/r/langflowai/langflow
-    pull_policy: always               # set to 'always' when using 'latest' image
+    image: langflowai/langflow:latest
+    pull_policy: always
     ports:
       - "7860:7860"
     depends_on:
       - postgres
     environment:
       - LANGFLOW_DATABASE_URL=postgresql://langflow:langflow@postgres:5432/langflow
-      # This variable defines where the logs, file storage, monitor data and secret keys are stored.
-      - LANGFLOW_CONFIG_DIR=app/langflow
+      - LANGFLOW_CONFIG_DIR=/app/langflow  # 规范化路径
+      - LANGFLOW_AUTO_LOGIN=False          # 建议添加，启用登录, Default langflow:langflow
+      - LANGFLOW_SECRET_KEY=your-secure-secret-key  # 建议添加，增强安全性
     volumes:
-      - langflow-data:/app/langflow
+      - ./langflow-data:/app/langflow    # 映射到当前目录下的 langflow-data
+    command: ["python", "-m", "langflow", "run", "--host", "0.0.0.0", "--port", "7860"]
 
   postgres:
     image: postgres:16
@@ -22,8 +24,9 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - langflow-postgres:/var/lib/postgresql/data
+      - ./langflow-postgres:/var/lib/postgresql/data  # 映射到当前目录下的 langflow-postgres
 
-volumes:
-  langflow-postgres:
-  langflow-data:
+# 可选：如果以后需要命名的卷，可以在这里定义
+# volumes:
+#   langflow-postgres:
+#   langflow-data:
